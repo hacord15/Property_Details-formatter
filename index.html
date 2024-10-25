@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Responsive Property Details Form</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f8f9fa;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 500px;
+            width: 100%;
+        }
+
+        .form-container,
+        .property-container {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+
+        h2,
+        h1 {
+            font-size: 1.5rem;
+            color: #343a40;
+            margin-bottom: 15px;
+        }
+
+        label {
+            font-weight: 500;
+            color: #495057;
+            margin-top: 10px;
+            display: block;
+        }
+
+        input,
+        select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ced4da;
+            border-radius: 5px;
+            margin-top: 5px;
+            font-size: 14px;
+        }
+
+        button {
+            width: 100%;
+            padding: 10px;
+            margin-top: 15px;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .btn-display {
+            background-color: #28a745;
+            color: white;
+        }
+
+        .btn-edit {
+            background-color: #ffc107;
+            color: white;
+        }
+
+        .btn-copy-share {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .btn-copy,
+        .btn-share {
+            flex: 1;
+            padding: 10px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .property-container {
+            display: none;
+        }
+
+        .landmarks-list {
+            padding-left: 20px;
+            margin-top: 0;
+            margin-bottom: 15px;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+
+            h2,
+            h1 {
+                font-size: 1.2rem;
+            }
+
+            input,
+            select,
+            button {
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <div class="form-container">
+            <h2>Enter Property Details</h2>
+            <form id="propertyForm">
+                <label for="propertyType">Property Type:</label>
+                <select id="propertyType" required onchange="toggleCustomInput()">
+                    <option value="" disabled selected>Select Property Type</option>
+                    <option value="Residential Property For Rent">Residential Property For Rent</option>
+                    <option value="Residential Property For Sale">Residential Property For Sale</option>
+                    <option value="Commercial Office Space">Commercial Office Space</option>
+                    <option value="Industrial/Warehouse Property">Industrial/Warehouse Property</option>
+                    <option value="Land for Development">Land for Development</option>
+                    <option value="Luxury Villa (Holiday Rental)">Luxury Villa (Holiday Rental)</option>
+                    <option value="Other">Other</option>
+                </select>
+
+                <div class="custom-property-type" id="customPropertyTypeContainer" style="display: none;">
+                    <label for="customPropertyType">Enter Custom Property Type:</label>
+                    <input type="text" id="customPropertyType" placeholder="e.g., Beachfront Condo">
+                </div>
+
+                <label for="location">Property Location:</label>
+                <input type="text" id="location" placeholder="e.g., Downtown Business Hub" required>
+
+                <label for="area">Area:</label>
+                <input type="text" id="area" placeholder="e.g., 3000 sq ft or approx. 3000" required>
+
+                <label for="price">Asking Price:</label>
+                <input type="text" id="price" placeholder="e.g., $1,500,000" required>
+
+                <label for="pricePerSqFt">Price per sq ft:</label>
+                <input type="text" id="pricePerSqFt" placeholder="e.g., $500" required>
+
+                <label for="landmarks">Nearby Landmarks (comma-separated):</label>
+                <input type="text" id="landmarks" placeholder="e.g., City Center Mall: 300 meters, Prestige School: 1.5 km">
+
+                <button type="button" class="btn-display" onclick="displayPropertyDetails()">Display Property</button>
+            </form>
+        </div>
+
+        <div class="property-container" id="propertyDisplay">
+            <h1>🏢 Property Type: <span id="displayType"></span></h1>
+            <p><strong>📍 Location:</strong> <span id="displayLocation"></span></p>
+            <p><strong>📏 Area:</strong> <span id="displayArea"></span></p>
+            <p><strong>💰 Price:</strong> <span id="displayPrice"></span></p>
+            <p><strong>💲 Price per sq ft:</strong> <span id="displayPricePerSqFt"></span></p>
+
+            <div style="margin-top: 20px;">
+                <p><strong>🗺️ Nearby Landmarks:</strong></p>
+                <ul id="displayLandmarks" class="landmarks-list"></ul>
+            </div>
+
+            <button class="btn-edit" onclick="editPropertyDetails()">Edit Property</button>
+
+            <div class="btn-copy-share">
+                <button class="btn-copy" onclick="copyContent()">Copy Content</button>
+                <button class="btn-share" onclick="shareOnWhatsApp()">Share on WhatsApp</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function toggleCustomInput() {
+            const propertyTypeSelect = document.getElementById("propertyType");
+            const customInputContainer = document.getElementById("customPropertyTypeContainer");
+            const customInput = document.getElementById("customPropertyType");
+
+            if (propertyTypeSelect.value === "Other") {
+                customInputContainer.style.display = "block";
+                customInput.required = true;
+            } else {
+                customInputContainer.style.display = "none";
+                customInput.required = false;
+                customInput.value = "";
+            }
+        }
+
+        function getPropertyDetails() {
+            const typeSelect = document.getElementById("propertyType");
+            const customType = document.getElementById("customPropertyType").value;
+            const type = typeSelect.value === "Other" ? customType : typeSelect.value;
+            const location = document.getElementById("location").value;
+            const area = document.getElementById("area").value;
+            const price = document.getElementById("price").value;
+            const pricePerSqFt = document.getElementById("pricePerSqFt").value;
+            const landmarks = document.getElementById("landmarks").value.split(",").filter(Boolean);
+
+            return { type, location, area, price, pricePerSqFt, landmarks };
+        }
+
+        function displayPropertyDetails() {
+            const { type, location, area, price, pricePerSqFt, landmarks } = getPropertyDetails();
+
+            document.getElementById("displayType").innerText = type;
+            document.getElementById("displayLocation").innerText = location;
+            document.getElementById("displayArea").innerText = area;
+            document.getElementById("displayPrice").innerText = price;
+            document.getElementById("displayPricePerSqFt").innerText = pricePerSqFt;
+
+            const landmarksList = document.getElementById("displayLandmarks");
+            landmarksList.innerHTML = "";
+            landmarks.forEach(landmark => {
+                const li = document.createElement("li");
+                li.innerText = landmark.trim();
+                landmarksList.appendChild(li);
+            });
+
+            document.getElementById("propertyDisplay").style.display = "block";
+        }
+
+        function copyContent() {
+    const { type, location, area, price, pricePerSqFt, landmarks } = getPropertyDetails();
+    const landmarksText = landmarks.join("\n📍  ");
+
+    const textToCopy = `
+**PROPERTY TYPE:** ${type}\n
+**📍 LOCATION:** ${location}
+**📏 AREA:** ${area}
+**💰 PRICE:** ${price}
+**💲 PRICE PER SQ FT:** ${pricePerSqFt}
+
+**🗺️ LANDMARKS:**
+📍  ${landmarksText}
+    `.trim();
+
+    navigator.clipboard.writeText(textToCopy)
+        .then(() => {
+            console.log("Property details copied to clipboard!");
+            alert("Property details copied!");
+        })
+        .catch(err => {
+            console.error("Failed to copy text: ", err);
+            alert("Failed to copy text: " + err);
+        });
+}
+
+        function shareOnWhatsApp() {
+            const { type, location, area, price, pricePerSqFt, landmarks } = getPropertyDetails();
+            const landmarksText = landmarks.join("\n📍  ");
+            
+            const message = `
+*PROPERTY TYPE:* ${type}\n
+📍 *LOCATION:* ${location}
+📏 *AREA:* ${area}
+💰 *PRICE:* ${price}
+💲 *PRICE PER SQ FT:* ${pricePerSqFt}
+
+🗺️ *LANDMARKS:*
+📍  ${landmarksText}
+            `.trim();
+
+            const url = `https://api.whatsapp.com/send?text=${encodeURIComponent(message)}`;
+            window.open(url, "_blank");
+        }
+
+        function editPropertyDetails() {
+            document.getElementById("propertyDisplay").style.display = "none";
+            document.getElementById("propertyForm").reset();
+            toggleCustomInput();  // Reset custom input display
+        }
+    </script>
+
+</body>
+
+</html>
